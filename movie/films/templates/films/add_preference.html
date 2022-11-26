@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить предложение{% endblock %}
+
+{% block content %}
+
+<h1>Добавление предложения</h1>
+<p class="card-header">
+    В данном разделе, вы можете предложить фильмы которые хотели бы у нас увидеть.
+    Спустя какое-то время они будут одобрены администрацией сайта и добавленны в голосание.
+
+
+</p>
+
+<form action="{% url 'add_preference' %}" method="post">
+    <br>
+    <h3>
+        Заполните форму
+    </h3>
+    <br>
+    {% csrf_token %}
+    {{ form.non_field.errors }}
+    <div class="card">
+        <div class="card-body">
+            {{form.as_p}}
+        </div>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary btn-block">Отправить</button>
+    </div>
+    <br>
+    <br>
+
+</form>
+
+{% endblock %}
