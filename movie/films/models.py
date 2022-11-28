@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from datetime import datetime
 
 
 class Films(models.Model):
@@ -26,11 +27,13 @@ class Films(models.Model):
 
 class Sessions(models.Model):
     date = models.DateTimeField()
-    film = models.ForeignKey("Films", on_delete=models.PROTECT, null=True)
+    film = models.ForeignKey("Films", related_name='sessions', on_delete=models.PROTECT, null=True)
     room = models.ForeignKey('Rooms', on_delete=models.PROTECT, null=True)
 
+
+
     def __str__(self):
-        return str(self.date)
+        return f'{self.film.title} - {str(self.date)}'
 
     class Meta:
         verbose_name = 'Сеанс'
@@ -90,3 +93,11 @@ class Comments(models.Model):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ['date_added']
+
+
+
+class MainPageCarousel(models.Model):
+    photo = models.ImageField(upload_to='mainpage_photos/%Y/%m/%d/', null=True)
+
+    def __str__(self):
+        return f'photo - {self.pk}'

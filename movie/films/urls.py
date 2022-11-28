@@ -21,7 +21,7 @@ urlpatterns = [
 
     path('film/<int:id>/', film_detail_view, name='films'),
 
-    path('film/add-comment/', AddCommentView.as_view(), name='add_comment'),
+    path('sessions/', HomeViewsByDate.as_view(), name='sessions'),
 
     path('film/add-preference/', CreateView.as_view(form_class=FilmsForm, template_name='films/add_preference.html', success_url=reverse_lazy('home')), name='add_preference')
 ]

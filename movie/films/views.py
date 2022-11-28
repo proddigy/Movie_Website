@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from .models import *
 from django.http import HttpResponseForbidden
+from datetime import datetime
 
 
 def register(request):
@@ -55,10 +56,34 @@ class HomeViews(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Афиши'
+        context['photos'] = MainPageCarousel.objects.all()
         return context
 
     def get_queryset(self):
-        return Films.objects.filter(is_published=True).select_related('genre')
+        return Films.objects.filter(is_published=True)
+
+
+class HomeViewsByDate(ListView):
+    model = Films
+    template_name = 'films/home_films_list.html'
+    context_object_name = 'films'
+    paginate_by = 8
+
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Афиши'
+        context['photos'] = MainPageCarousel.objects.all()
+        return context
+
+    def get_queryset(self):
+        pks = []
+        for item in Sessions.objects.filter(date__month=datetime.today().month, date__day=datetime.today().day):
+            pks.append(item.film_id)
+
+        return Films.objects.filter(pk__in=pks)
+
+
 
 
 class FilmsByGenre(ListView):
@@ -70,10 +95,11 @@ class FilmsByGenre(ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = Genre.objects.get(pk=self.kwargs['genre_id'])
+        context['photos'] = MainPageCarousel.objects.all()
         return context
 
     def get_queryset(self):
-        return Films.objects.filter(genre_id=self.kwargs['genre_id'], is_published=True).select_related('genre')
+        return Films.objects.filter(genre_id=self.kwargs['genre_id'], is_published=True)
 
 
 def film_detail_view(request, id):
@@ -130,9 +156,7 @@ class FilmDetailView(DetailView, ModelFormMixin):
         return reverse_lazy('film', self.kwargs['pk'])
 
 
-class AddCommentView(CreateView):
-    form_class = CommentForm
-    template_name = 'films_detail.html'
+
 
 
 
