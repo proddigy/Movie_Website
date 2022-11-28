@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from .models import *
 from django.http import HttpResponseForbidden
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def register(request):
@@ -57,6 +57,9 @@ class HomeViews(ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Афиши'
         context['photos'] = MainPageCarousel.objects.all()
+        context['date_1'] = (datetime.today() + timedelta(1)).date()
+        context['date_2'] = (datetime.today() + timedelta(2)).date()
+        context['date_3'] = (datetime.today() + timedelta(3)).date()
         return context
 
     def get_queryset(self):
@@ -68,17 +71,21 @@ class HomeViewsByDate(ListView):
     template_name = 'films/home_films_list.html'
     context_object_name = 'films'
     paginate_by = 8
+    inputed_number = 0
 
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Афиши'
         context['photos'] = MainPageCarousel.objects.all()
+        context['date_1'] = (datetime.today() + timedelta(1)).date()
+        context['date_2'] = (datetime.today() + timedelta(2)).date()
+        context['date_3'] = (datetime.today() + timedelta(3)).date()
         return context
 
     def get_queryset(self):
         pks = []
-        for item in Sessions.objects.filter(date__month=datetime.today().month, date__day=datetime.today().day):
+        for item in Sessions.objects.filter(date__month=datetime.today().month, date__day=(datetime.today()+timedelta(self.inputed_number)).day):
             pks.append(item.film_id)
 
         return Films.objects.filter(pk__in=pks)
@@ -96,9 +103,13 @@ class FilmsByGenre(ListView):
         context = super().get_context_data(**kwargs)
         context['title'] = Genre.objects.get(pk=self.kwargs['genre_id'])
         context['photos'] = MainPageCarousel.objects.all()
+        context['date_1'] = (datetime.today() + timedelta(1)).date()
+        context['date_2'] = (datetime.today() + timedelta(2)).date()
+        context['date_3'] = (datetime.today() + timedelta(3)).date()
         return context
 
     def get_queryset(self):
+
         return Films.objects.filter(genre_id=self.kwargs['genre_id'], is_published=True)
 
 

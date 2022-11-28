@@ -1,9 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@450&display=swap');
+
 body{
     background-color: #fefefe;
-    font-family: 'Jost';
+    font-family: 'Manrope', sans-serif;
 }
 
+.navbar-brand {
+    color: #ff6781;
+    font-family: 'Rubik Mono One', sans-serif;
+}
 
+.navbar-collapse {
+    font-family: 'Jost', sans-serif;
+}
 
 
 
