@@ -32,7 +32,7 @@
         <p class="card-text">Жанр: {{ film_item.genre }}</p>
         <p class="card-text">Год выпуска: {{ film_item.year_of_execution }}</p>
         <p class="card-text">Режиссер: {{film_item.director}}</p>
-        <p class="card-text">О фильме:</p>
+        <h5 class="card-text">О фильме:</h5>
         <p class="card-text">{{ film_item.description|linebreaks }}</p>
         {% if sessions %}
         <h5 class="card-title">Можно увидеть</h5>
