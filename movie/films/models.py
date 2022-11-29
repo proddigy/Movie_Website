@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from datetime import datetime
+from django.template.defaultfilters import slugify
+from random import randint
 
 
 class Films(models.Model):
@@ -30,8 +32,6 @@ class Sessions(models.Model):
     film = models.ForeignKey("Films", related_name='sessions', on_delete=models.PROTECT, null=True)
     room = models.ForeignKey('Rooms', on_delete=models.PROTECT, null=True)
 
-
-
     def __str__(self):
         return f'{self.film.title} - {str(self.date)}'
 
@@ -43,6 +43,12 @@ class Sessions(models.Model):
 
 class Genre(models.Model):
     title = models.CharField(max_length=150, db_index=True, verbose_name="Genre")
+    slug = models.SlugField(default=str('aka'+str(randint(100000, 999999))))
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('genres', kwargs={'genre_id': self.pk})
@@ -50,12 +56,11 @@ class Genre(models.Model):
     def __str__(self):
         return self.title
 
-
-
     class Meta:
         verbose_name = "Genre"
         verbose_name_plural = 'Genres'
         ordering = ['id']
+
 
 class Rooms(models.Model):
     title = models.CharField(max_length=150, verbose_name="Room")
@@ -69,6 +74,7 @@ class Rooms(models.Model):
         verbose_name_plural = 'Rooms'
         ordering = ['id']
 
+
 class Photos(models.Model):
     film = models.ForeignKey("Films", on_delete=models.PROTECT, null=True)
     photo = models.ImageField(upload_to='gallery/%Y/%m/%d/', null=True, blank=True)
@@ -80,6 +86,7 @@ class Photos(models.Model):
 
     def __str__(self):
         return f'{self.film.title} - {self.pk}'
+
 
 class Comments(models.Model):
     film = models.ForeignKey("Films", on_delete=models.PROTECT, null=True, verbose_name='Фильм')
@@ -94,7 +101,6 @@ class Comments(models.Model):
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
         ordering = ['date_added']
-
 
 
 class MainPageCarousel(models.Model):
