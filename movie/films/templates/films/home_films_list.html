@@ -27,9 +27,11 @@
         <span class="visually-hidden">Next</span>
     </button>
 </div>
+<hr>
 <br>
 {% include 'inc/_nav_sessions.html' %}
 <br>
+<hr>
 {% endblock %}
 
 
@@ -39,7 +41,7 @@
 {% block content %}
 
 {% if not films %}
-<h1>К сожалениюь, на данную дату ещё не запланировано показов</h1>
+<h1>Unfortunately, there are no sessions on this date, yet.</h1>
 {% endif %}
 <div class="row row-cols-1 row-cols-md-4 g-4">
     {% for item in films %}
@@ -57,9 +59,9 @@
             <div class="card-body">
 
                 <h5 class="card-title">{{ item.title }}</h5>
-                <p class="card-text">Год выпуска: {{ item.year_of_execution }}</p>
-                <p class="card-text">{{ item.description|linebreaks|slice:':70'}}...</p>
-                <a href="{{ item.get_absolute_url }}" class="btn btn-primary">Перейти к показам</a>
+                <p class="card-text">Year: {{ item.year_of_execution }}</p>
+                <p class="card-text">{{ item.description|linebreaks|slice:':60'}}...</p>
+                <a href="{{ item.get_absolute_url }}" class="btn btn-primary">Go to sessions</a>
             </div>
         </div>
 

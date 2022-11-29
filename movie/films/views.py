@@ -1,6 +1,6 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import ModelFormMixin
 from .forms import *
 from django.contrib import messages
@@ -55,7 +55,7 @@ class HomeViews(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Афиши'
+        context['title'] = 'On the screen'
         context['photos'] = MainPageCarousel.objects.all()
         context['date_1'] = (datetime.today() + timedelta(1)).date()
         context['date_2'] = (datetime.today() + timedelta(2)).date()
@@ -73,10 +73,9 @@ class HomeViewsByDate(ListView):
     paginate_by = 8
     inputed_number = 0
 
-
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Афиши'
+        context['title'] = 'On the screen'
         context['photos'] = MainPageCarousel.objects.all()
         context['date_1'] = (datetime.today() + timedelta(1)).date()
         context['date_2'] = (datetime.today() + timedelta(2)).date()
@@ -85,12 +84,11 @@ class HomeViewsByDate(ListView):
 
     def get_queryset(self):
         pks = []
-        for item in Sessions.objects.filter(date__month=datetime.today().month, date__day=(datetime.today()+timedelta(self.inputed_number)).day):
+        for item in Sessions.objects.filter(date__month=datetime.today().month,
+                                            date__day=(datetime.today() + timedelta(self.inputed_number)).day):
             pks.append(item.film_id)
 
         return Films.objects.filter(pk__in=pks)
-
-
 
 
 class FilmsByGenre(ListView):
@@ -109,7 +107,6 @@ class FilmsByGenre(ListView):
         return context
 
     def get_queryset(self):
-
         return Films.objects.filter(genre_id=self.kwargs['genre_id'], is_published=True)
 
 
@@ -124,21 +121,22 @@ def film_detail_view(request, id):
     else:
         form = CommentForm()
 
-
     context = {
         'film_item': Films.objects.filter(id=id).first(),
         'form': form,
         'sessions': Sessions.objects.filter(film_id=id),
-        'slides': Photos.objects.filter(film_id=id).first(),
+        'slides': Photos.objects.filter(film_id=id),
         'comments': Comments.objects.filter(film_id=id)
     }
     return render(request, 'films/films_detail.html', context)
+
 
 class FilmDetailView(DetailView, ModelFormMixin):
     model = Films
     context_object_name = 'film_item'
     form_class = CommentForm
     template_name = 'films/films_detail.html'
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -162,12 +160,5 @@ class FilmDetailView(DetailView, ModelFormMixin):
         form.instance.name = self.request.user
         return super().form_valid(form)
 
-
     def get_success_url(self):
         return reverse_lazy('film', self.kwargs['pk'])
-
-
-
-
-
-

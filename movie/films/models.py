@@ -4,14 +4,14 @@ from datetime import datetime
 
 
 class Films(models.Model):
-    title = models.CharField(max_length=400, verbose_name="Название Фильма")
-    description = models.TextField(blank=True, verbose_name="Описание")
-    country = models.CharField(max_length=150, verbose_name="Страна выпуска")
-    year_of_execution = models.IntegerField(verbose_name="Год выпуска")
-    director = models.CharField(max_length=150, verbose_name="Режиссер")
-    genre = models.ForeignKey("Genre", on_delete=models.PROTECT, null=True, default=1, verbose_name="Жанр")
+    title = models.CharField(max_length=400, verbose_name="Movie name")
+    description = models.TextField(blank=True, verbose_name="Description")
+    country = models.CharField(max_length=150, verbose_name="Country")
+    year_of_execution = models.IntegerField(verbose_name="Year")
+    director = models.CharField(max_length=150, verbose_name="Director")
+    genre = models.ForeignKey("Genre", on_delete=models.PROTECT, null=True, default=1, verbose_name="Genre")
     photo = models.ImageField(upload_to='photos/%Y/%m/%d/', null=True, blank=True)
-    is_published = models.BooleanField(default=False, verbose_name="Подтвержденно")
+    is_published = models.BooleanField(default=False, verbose_name="Confirmed")
 
     def __str__(self):
         return self.title
@@ -20,8 +20,8 @@ class Films(models.Model):
         return reverse('films', kwargs={'id': self.pk})
 
     class Meta:
-        verbose_name = 'Фильм'
-        verbose_name_plural = 'Фильмы'
+        verbose_name = 'Movie'
+        verbose_name_plural = 'Movies'
         ordering = ['id']
 
 
@@ -36,13 +36,13 @@ class Sessions(models.Model):
         return f'{self.film.title} - {str(self.date)}'
 
     class Meta:
-        verbose_name = 'Сеанс'
-        verbose_name_plural = "Сеансы"
+        verbose_name = 'Session'
+        verbose_name_plural = "Sessions"
         ordering = ['date']
 
 
 class Genre(models.Model):
-    title = models.CharField(max_length=150, db_index=True, verbose_name="Жанр")
+    title = models.CharField(max_length=150, db_index=True, verbose_name="Genre")
 
     def get_absolute_url(self):
         return reverse('genres', kwargs={'genre_id': self.pk})
@@ -53,32 +53,33 @@ class Genre(models.Model):
 
 
     class Meta:
-        verbose_name = "Жанр"
-        verbose_name_plural = 'Жанры'
+        verbose_name = "Genre"
+        verbose_name_plural = 'Genres'
         ordering = ['id']
 
 class Rooms(models.Model):
-    title = models.CharField(max_length=150, verbose_name="Название зала")
-    capacity = models.IntegerField(default=50, verbose_name="Вместительность")
+    title = models.CharField(max_length=150, verbose_name="Room")
+    capacity = models.IntegerField(default=50, verbose_name="Capacity")
 
     def __str__(self):
         return self.title
 
     class Meta:
-        verbose_name = "Зал"
-        verbose_name_plural = 'Залы'
+        verbose_name = "Room"
+        verbose_name_plural = 'Rooms'
         ordering = ['id']
 
 class Photos(models.Model):
     film = models.ForeignKey("Films", on_delete=models.PROTECT, null=True)
-    photo_1 = models.ImageField(upload_to='gallery/%Y/%m/%d/', null=True, blank=True)
-    photo_2 = models.ImageField(upload_to='gallery/%Y/%m/%d/', null=True, blank=True)
-    photo_3 = models.ImageField(upload_to='gallery/%Y/%m/%d/', null=True, blank=True)
+    photo = models.ImageField(upload_to='gallery/%Y/%m/%d/', null=True, blank=True)
 
     class Meta:
-        verbose_name = 'Слайд'
-        verbose_name_plural = 'Слайды'
+        verbose_name = 'Slide'
+        verbose_name_plural = 'Slides(DetailView)'
         ordering = ['film']
+
+    def __str__(self):
+        return f'{self.film.title} - {self.pk}'
 
 class Comments(models.Model):
     film = models.ForeignKey("Films", on_delete=models.PROTECT, null=True, verbose_name='Фильм')
@@ -90,8 +91,8 @@ class Comments(models.Model):
         return f'{self.film_id} - {self.name} - {self.body}'
 
     class Meta:
-        verbose_name = 'Комментарий'
-        verbose_name_plural = 'Комментарии'
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
         ordering = ['date_added']
 
 
@@ -101,3 +102,8 @@ class MainPageCarousel(models.Model):
 
     def __str__(self):
         return f'photo - {self.pk}'
+
+    class Meta:
+        verbose_name = 'Slide'
+        verbose_name_plural = 'Slides (Main page)'
+        ordering = ['pk']
