@@ -17,15 +17,14 @@ class CommentForm(forms.ModelForm):
 class FilmsForm(forms.ModelForm):
     class Meta:
         model = Films
-        fields = ['title', 'description', 'country', 'year_of_execution', 'director', 'genre', 'photo']
+        fields = ['title', 'description', 'country', 'year_of_execution', 'director', 'genre']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
             'country': forms.TextInput(attrs={'class': 'form-control'}),
             'year_of_execution': forms.NumberInput(attrs={'class': 'form-control'}),
             'director': forms.TextInput(attrs={'class': 'form-control'}),
-            'genre': forms.Select(attrs={'class': 'form-control'}),
-            'photo': forms.FileInput(attrs={'class': 'form-control'})
+            'genre': forms.Select(attrs={'class': 'form-control'})
 
         }
 

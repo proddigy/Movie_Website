@@ -11,7 +11,8 @@ class Films(models.Model):
     country = models.CharField(max_length=150, verbose_name="Country")
     year_of_execution = models.IntegerField(verbose_name="Year")
     director = models.CharField(max_length=150, verbose_name="Director")
-    genre = models.ForeignKey("Genre", on_delete=models.PROTECT, null=True, default=1, verbose_name="Genre")
+    # genre = models.ForeignKey("Genre", related_name='films', on_delete=models.PROTECT, null=True, default=1, verbose_name="Genre")
+    genre = models.ManyToManyField('Genre', related_name='films')
     photo = models.ImageField(upload_to='photos/%Y/%m/%d/', null=True, blank=True)
     is_published = models.BooleanField(default=False, verbose_name="Confirmed")
 
@@ -43,7 +44,7 @@ class Sessions(models.Model):
 
 class Genre(models.Model):
     title = models.CharField(max_length=150, db_index=True, verbose_name="Genre")
-    slug = models.SlugField(default=str('aka'+str(randint(100000, 999999))))
+    slug = models.SlugField(auto_created=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -51,7 +52,7 @@ class Genre(models.Model):
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('genres', kwargs={'genre_id': self.pk})
+        return reverse('genres', kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.title
@@ -89,9 +90,9 @@ class Photos(models.Model):
 
 
 class Comments(models.Model):
-    film = models.ForeignKey("Films", on_delete=models.PROTECT, null=True, verbose_name='Фильм')
-    name = models.CharField(verbose_name="Имя пользователя", max_length=255)
-    body = models.TextField(verbose_name='Комментарий')
+    film = models.ForeignKey("Films", on_delete=models.PROTECT, null=True, verbose_name='Movie')
+    name = models.CharField(verbose_name="Username", max_length=255)
+    body = models.TextField(verbose_name='Comment')
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

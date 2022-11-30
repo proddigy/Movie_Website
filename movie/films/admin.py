@@ -7,13 +7,14 @@ class PhotosAdmin(admin.ModelAdmin):
     list_display = ('film',)
 
 class FilmsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'genre', 'is_published')
+    list_display = ('id', 'title', 'is_published')
     list_display_links = ('id', 'title')
     list_editable = ('is_published',)
     search_fields = ('title', 'description')
 
 class SessionsAdmin(admin.ModelAdmin):
     list_display = ('id', 'date')
+    list_display_links = ('id', 'date')
 
 class GenresAdmin(admin.ModelAdmin):
     list_display = ('id', 'title')

@@ -92,14 +92,13 @@ class HomeViewsByDate(ListView):
 
 
 class FilmsByGenre(ListView):
-    model = Films
+    model = Genre
     template_name = 'films/home_films_list.html'
     context_object_name = 'films'
-    allow_empty = False
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = Genre.objects.get(pk=self.kwargs['genre_id'])
+        context['title'] = Genre.objects.get(slug=self.kwargs['slug'])
         context['photos'] = MainPageCarousel.objects.all()
         context['date_1'] = (datetime.today() + timedelta(1)).date()
         context['date_2'] = (datetime.today() + timedelta(2)).date()
@@ -107,7 +106,7 @@ class FilmsByGenre(ListView):
         return context
 
     def get_queryset(self):
-        return Films.objects.filter(genre_id=self.kwargs['genre_id'], is_published=True)
+        return Films.objects.filter(genre=Genre.objects.get(slug=self.kwargs['slug']))
 
 
 def film_detail_view(request, id):
@@ -123,6 +122,7 @@ def film_detail_view(request, id):
 
     context = {
         'film_item': Films.objects.filter(id=id).first(),
+        'genre_list': Genre.objects.filter(films=Films.objects.filter(id=id).first()),
         'form': form,
         'sessions': Sessions.objects.filter(film_id=id),
         'slides': Photos.objects.filter(film_id=id),
