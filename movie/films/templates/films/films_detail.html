@@ -37,7 +37,7 @@
         <h5 class="card-title">On the Screen</h5>
 
         {% for session in sessions %}
-        <p class="card-text">{{session.room}}:  {{session.date}}</p>
+        <p class="card-text">{{session.room}}:  {{session.date}} - {{session.time}}</p>
         {% endfor %}
         {% else %}
         <h5 class="card-title">Soon...</h5>
@@ -95,6 +95,7 @@
     {{ form.as_p }}
     <button type="submit" class="btn btn-primary btn-block">Submit</button>
 </form>
+<br>
 {% else %}
 <h5>To leave a comment, you need to login</h5>
 <br>

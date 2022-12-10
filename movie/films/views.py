@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
-from django.views.generic.edit import ModelFormMixin
+from django.views.generic.edit import FormMixin
 from .forms import *
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from .models import *
 from django.http import HttpResponseForbidden
 from datetime import datetime, timedelta
+from PyMovieDb import IMDB
 
 
 def register(request):
@@ -48,7 +49,8 @@ def user_logout(request):
 
 
 class HomeViews(ListView):
-    model = Films
+    """List of movies"""
+    model = Movie
     template_name = 'films/home_films_list.html'
     context_object_name = 'films'
     paginate_by = 8
@@ -63,11 +65,12 @@ class HomeViews(ListView):
         return context
 
     def get_queryset(self):
-        return Films.objects.filter(is_published=True)
+        return Movie.objects.filter(is_published=True)
 
 
 class HomeViewsByDate(ListView):
-    model = Films
+    """List of films by session date"""
+    model = Movie
     template_name = 'films/home_films_list.html'
     context_object_name = 'films'
     paginate_by = 8
@@ -83,15 +86,15 @@ class HomeViewsByDate(ListView):
         return context
 
     def get_queryset(self):
-        pks = []
-        for item in Sessions.objects.filter(date__month=datetime.today().month,
-                                            date__day=(datetime.today() + timedelta(self.inputed_number)).day):
-            pks.append(item.film_id)
+        pks = set()
+        for item in Session.objects.filter(date=(datetime.today() + timedelta(self.inputed_number)).date()):
+            pks.add(item.film_id)
 
-        return Films.objects.filter(pk__in=pks)
+        return Movie.objects.filter(pk__in=pks)
 
 
-class FilmsByGenre(ListView):
+class MovieByGenre(ListView):
+    """List of movies by genre"""
     model = Genre
     template_name = 'films/home_films_list.html'
     context_object_name = 'films'
@@ -106,48 +109,26 @@ class FilmsByGenre(ListView):
         return context
 
     def get_queryset(self):
-        return Films.objects.filter(genre=Genre.objects.get(slug=self.kwargs['slug']))
+        return Movie.objects.filter(genre=Genre.objects.get(slug=self.kwargs['slug']))
 
 
-def film_detail_view(request, id):
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            body = request.POST.get('body')
-            comment = Comments.objects.create(film_id=id, name=request.user.username, body=body)
-            comment.save()
-            return redirect('films', id)
-    else:
-        form = CommentForm()
+class MovieDetail(DetailView, FormMixin):
+    """Movie detail view with comments"""
 
-    context = {
-        'film_item': Films.objects.filter(id=id).first(),
-        'genre_list': Genre.objects.filter(films=Films.objects.filter(id=id).first()),
-        'form': form,
-        'sessions': Sessions.objects.filter(film_id=id),
-        'slides': Photos.objects.filter(film_id=id),
-        'comments': Comments.objects.filter(film_id=id)
-    }
-    return render(request, 'films/films_detail.html', context)
-
-
-class FilmDetailView(DetailView, ModelFormMixin):
-    model = Films
+    model = Movie
     context_object_name = 'film_item'
     form_class = CommentForm
     template_name = 'films/films_detail.html'
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['slides'] = Photos.objects.get(film_id=self.kwargs['pk'])
-        context['sessions'] = Sessions.objects.filter(film_id=self.kwargs['pk'])
-        context['comments'] = Comments.objects.filter(film_id=self.kwargs['pk'])
+        context['genre_list'] = Genre.objects.filter(films=self.object)
+        context['sessions'] = Session.objects.filter(film_id=self.object.id)
+        context['slides'] = Photos.objects.filter(film_id=self.object.id)
+        context['comments'] = Comment.objects.filter(film_id=self.object.id)
         return context
 
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return HttpResponseForbidden()
         self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
@@ -156,9 +137,29 @@ class FilmDetailView(DetailView, ModelFormMixin):
             return self.form_invalid(form)
 
     def form_valid(self, form):
-        form.instance.film_id = self.kwargs['pk']
-        form.instance.name = self.request.user
+        body = self.request.POST.get('body')
+        comment = Comment.objects.create(film_id=self.object.id, name=self.request.user.username, body=body)
+        comment.save()
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('film', self.kwargs['pk'])
+        return reverse('films', kwargs={'pk': self.object.pk})
+
+
+def add_movie(request):
+
+    """search by form get request"""
+
+    if request.user.is_authenticated:
+        search_class = IMDB()
+        if request.method == 'GET':
+            form = AddMovieForm(request.GET)
+            if form.is_valid():
+                search = form.cleaned_data['search']
+                result = search_class.search(search)
+                return render(request, 'films/add_movie.html', {'form': form, 'result': result})
+        else:
+            form = AddMovieForm()
+        return render(request, 'films/add_movie.html', {'form': form})
+    else:
+        return redirect('login')

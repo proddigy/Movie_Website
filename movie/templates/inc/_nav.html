@@ -24,9 +24,11 @@
 
                     </ul>
                 </li>
+                {% if request.user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'add_preference' %}">Suggest</a>
+                    <a class="nav-link active" aria-current="page" href="{% url 'add_movie' %}">Suggest</a>
                 </li>
+                {% endif %}
 
 
             </ul>

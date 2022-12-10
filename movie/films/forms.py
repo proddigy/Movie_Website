@@ -6,7 +6,7 @@ from .models import *
 class CommentForm(forms.ModelForm):
 
     class Meta:
-        model = Comments
+        model = Comment
         fields = ['body']
         widgets = {
             # 'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -14,19 +14,15 @@ class CommentForm(forms.ModelForm):
         }
 
 
-class FilmsForm(forms.ModelForm):
-    class Meta:
-        model = Films
-        fields = ['title', 'description', 'country', 'year_of_execution', 'director', 'genre']
-        widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
-            'country': forms.TextInput(attrs={'class': 'form-control'}),
-            'year_of_execution': forms.NumberInput(attrs={'class': 'form-control'}),
-            'director': forms.TextInput(attrs={'class': 'form-control'}),
-            'genre': forms.Select(attrs={'class': 'form-control'})
+class AddMovieForm(forms.Form):
+    '''form for search movie'''
+    search = forms.CharField(max_length=100, label='Search', widget=forms.TextInput(attrs={'class': 'form-control'}))
 
-        }
+    def clean_search(self):
+        search = self.cleaned_data['search']
+        if not search:
+            raise forms.ValidationError('Field is empty')
+        return search
 
 class UserRegisterForm(UserCreationForm):
     username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'form-control'}))
